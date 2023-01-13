@@ -224,20 +224,20 @@ def get_employees_department_route(employeeID):
     return jsonify(response)
 
 
-def get_employees_subordinates(tx, employeeID):
+def get_subordinates(tx, employeeID):
     query = "MATCH (n1:Employee)-[:MANAGES]-(d:Department)-[:WORKS_IN]-(n2:Employee) WHERE ID(n1)=$employeeID RETURN " \
             "n2 "
     results = tx.run(query, employeeID=employeeID).data()
     employees = [{'name': result['n2']['name'], 'surname': result['n2']['surname'], 'age': result['n2']['age'],
-                  'position': result['n2']['position']} for result in results] 
+                  'position': result['n2']['position']} for result in results]
     return employees
 
 
 # get all subordinates for a department manager
 @app.route('/employees/<int:employeeID>/subordinates', methods=['GET'])
-def get_workers_subordinates_route(employeeID):
+def get_subordinates_route(employeeID):
     with driver.session() as session:
-        employees = session.read_transaction(get_employees_subordinates, employeeID)
+        employees = session.read_transaction(get_subordinates, employeeID)
     response = {'employees': employees}
     return jsonify(response)
 
